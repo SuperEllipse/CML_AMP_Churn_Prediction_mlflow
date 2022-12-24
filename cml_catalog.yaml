@@ -12,10 +12,10 @@ entries:
         basic Flask-based web application.
      image_path: >-
         https://raw.githubusercontent.com/cloudera/Applied-ML-Prototypes/master/images/churn-prediction.jpg
-    tags:
+     tags:
       - Churn Prediction
       - Logistic Regression
       - Explainability
       - Lime
-    git_url: "https://github.com/ogakulov/CML_AMP_Churn_Prediction_mlflow" 
-    is_prototype: true
+     git_url: "https://github.com/ogakulov/CML_AMP_Churn_Prediction_mlflow" 
+     is_prototype: true
