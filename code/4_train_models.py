@@ -136,6 +136,10 @@ from sklearn.linear_model import LogisticRegressionCV
 from sklearn.compose import ColumnTransformer
 from lime.lime_tabular import LimeTabularExplainer
 
+#MLFlow and additional model type for experimentation
+import mlflow
+from sklearn.svm import SVC
+
 try:
   os.chdir("code")
 except:
@@ -193,39 +197,68 @@ X = ce.fit_transform(datadf)
 y = labels.values
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 ct = ColumnTransformer(
-    [("ohe", OneHotEncoder(), list(ce.cat_columns_ix_.values()))],
-    remainder="passthrough",
+    [("ohe", OneHotEncoder(categories='auto'), list(ce.cat_columns_ix_.values()))],
+    remainder="passthrough"
 )
 
-# Experiments options
-# If you are running this as an experiment, pass the cv, solver and max_iter values
-# as arguments in that order. e.g. `5 lbfgs 100`.
-if len(sys.argv) == 4:
-    try:
-        cv = int(sys.argv[1])
-        solver = str(sys.argv[2])
-        max_iter = int(sys.argv[3])
-    except:
-        sys.exit("Invalid Arguments passed to Experiment")
-else:
-    cv = 5
-    solver = "lbfgs"  # one of newton-cg, lbfgs, liblinear, sag, saga
-    max_iter = 100
+## Experiments options
+## If you are running this as an experiment, pass the cv, solver and max_iter values
+## as arguments in that order. e.g. `5 lbfgs 100`.
+#if len(sys.argv) == 4:
+#    try:
+#        cv = int(sys.argv[1])
+#        solver = str(sys.argv[2])
+#        max_iter = int(sys.argv[3])
+#    except:
+#        sys.exit("Invalid Arguments passed to Experiment")
+#else:
+#    cv = 5
+#    solver = "lbfgs"  # one of newton-cg, lbfgs, liblinear, sag, saga
+#    max_iter = 100
+#
+## Instantiate the model
+#clf = LogisticRegressionCV(cv=cv, solver=solver, max_iter=max_iter)
+#pipe = Pipeline([("ct", ct), ("scaler", StandardScaler()), ("clf", clf)])
+#
+## Train the model
+#pipe.fit(X_train, y_train)
+#
+## Capture train and test set scores
+#train_score = pipe.score(X_train, y_train)
+#test_score = pipe.score(X_test, y_test)
+#print("train", train_score)
+#print("test", test_score)
+#print(classification_report(y_test, pipe.predict(X_test)))
+#datadf[labels.name + " probability"] = pipe.predict_proba(X)[:, 1]
 
-# Instantiate the model
-clf = LogisticRegressionCV(cv=cv, solver=solver, max_iter=max_iter)
-pipe = Pipeline([("ct", ct), ("scaler", StandardScaler()), ("clf", clf)])
+mlflow.set_experiment("Churn Model Tuning")
+kernel = ["linear", "rbf"]
+max_iter = [1, 10, 100, 1000, 10000]
 
-# Train the model
-pipe.fit(X_train, y_train)
-
-# Capture train and test set scores
-train_score = pipe.score(X_train, y_train)
-test_score = pipe.score(X_test, y_test)
-print("train", train_score)
-print("test", test_score)
-print(classification_report(y_test, pipe.predict(X_test)))
-datadf[labels.name + " probability"] = pipe.predict_proba(X)[:, 1]
+for k in kernel:
+  for i in max_iter:
+    
+    # Start experiment run
+    mlflow.start_run()
+    mlflow.log_param("Kernel", k)
+    mlflow.log_param("Max_iter", i)
+    
+    # Define and fit model pipeline
+    svc = SVC(kernel = k, random_state = 0, max_iter=i, probability=True)
+    svc_pipe = Pipeline([("ct", ct), ("scaler", StandardScaler()), ("svc_fit", svc)])
+    svc_pipe.fit(X_train, y_train)
+    
+    # Capture train and test set scores
+    train_score2 = svc_pipe.score(X_train, y_train)
+    test_score2 = svc_pipe.score(X_test, y_test)
+    #print("train", train_score2)
+    #print("test", test_score2)
+    #print(classification_report(y_test, svc_pipe.predict(X_test)))
+    #datadf[labels.name + " probability"] = svc_pipe.predict_proba(X)[:, 1]
+    
+    mlflow.log_metric("train_score", round(train_score2, 2))
+    mlflow.log_metric("test_score", round(test_score2, 2))
+    mlflow.end_run()
 
 
 # Create LIME Explainer
@@ -247,7 +280,7 @@ explainedmodel = ExplainedModel(
     data=datadf,
     labels=labels,
     categoricalencoder=ce,
-    pipeline=pipe,
+    pipeline=svc_pipe,
     explainer=explainer,
 )
 explainedmodel.save(model_name='telco_linear')
@@ -255,8 +288,8 @@ explainedmodel.save(model_name='telco_linear')
 
 # If running as as experiment, this will track the metrics and add the model trained in this
 # training run to the experiment history.
-cdsw.track_metric("train_score", round(train_score, 2))
-cdsw.track_metric("test_score", round(test_score, 2))
+#cdsw.track_metric("train_score", round(train_score, 2))
+#cdsw.track_metric("test_score", round(test_score, 2))
 #cdsw.track_metric("model_path", explainedmodel.model_path)
 #cdsw.track_file(explainedmodel.model_path)
 
