@@ -10,7 +10,7 @@ entries:
         interpreted using a technique called Local Interpretable Model-agnostic Explanations (LIME). Both the logistic 
         regression and LIME models are deployed using CML's real-time model deployment capability and interact with a 
         basic Flask-based web application.
-     image_path: "https://raw.githubusercontent.com/cloudera/Applied-ML-Prototypes/master/images/churn-prediction.jpg"
+     image_path: "https://cdn.jsdelivr.net/gh/ogakulov/CML_AMP_Churn_Prediction_mlflow/images/CML_workshop_cover.png"
      tags:
       - Churn Prediction
       - Logistic Regression
