@@ -254,7 +254,7 @@ for k in kernel:
     #print("train", train_score2)
     #print("test", test_score2)
     #print(classification_report(y_test, svc_pipe.predict(X_test)))
-    #datadf[labels.name + " probability"] = svc_pipe.predict_proba(X)[:, 1]
+    datadf[labels.name + " probability"] = svc_pipe.predict_proba(X)[:, 1]
     
     mlflow.log_metric("train_score", round(train_score2, 2))
     mlflow.log_metric("test_score", round(test_score2, 2))

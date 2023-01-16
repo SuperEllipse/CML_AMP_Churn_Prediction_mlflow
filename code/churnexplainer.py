@@ -130,6 +130,7 @@ class ExplainedModel:
 
     def explain_df(self, df):
         X = self.categoricalencoder.transform(df)
+        X = self.categoricalencoder.transform(df)
         probability = self.pipeline.predict_proba(X)[0, 1]
         e = self.explainer.explain_instance(X[0], self.pipeline.predict_proba).as_map()[
             1

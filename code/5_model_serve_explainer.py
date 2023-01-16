@@ -133,9 +133,9 @@
 #
 ### Creating and deploying a Model
 # To create a Model using our `5_model_serve_explainer.py` script, use the following settings:
-# * **Name**: Explainer
+# * **Name**: Churn Model API Endpoint
 # * **Description**: Explain customer churn prediction
-# * **File**: `5_model_serve_explainer.py`
+# * **File**: `code/5_model_serve_explainer.py`
 # * **Function**: explain
 # * **Input**:
 # ```
@@ -235,6 +235,7 @@ def explain(args):
 # uncomment the and run the two rows below.
 #x={"StreamingTV":"No","MonthlyCharges":70.35,"PhoneService":"No","PaperlessBilling":"No","Partner":"No","OnlineBackup":"No","gender":"Female","Contract":"Month-to-month","TotalCharges":1397.475,"StreamingMovies":"No","DeviceProtection":"No","PaymentMethod":"Bank transfer (automatic)","tenure":29,"Dependents":"No","OnlineSecurity":"No","MultipleLines":"No","InternetService":"DSL","SeniorCitizen":"No","TechSupport":"No"}
 #explain(x)
+
 
 ## Wrap up
 #
