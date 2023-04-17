@@ -37,6 +37,14 @@ tasks:
     name: Install dependencies
     script: code/0_bootstrap.py
     short_summary: >-
-      Install dependencies, set environment variables, and upload data
+      Install dependencies, set environment variables, and upload data.
+    cpu: 1
+    memory: 2
+    
+  - type: run_session
+    name: Ingest data
+    script: code/1_data_ingest.py
+    short_summary: >-
+      Create hive table in the datalake and use uploaded data as source.
     cpu: 1
     memory: 2
