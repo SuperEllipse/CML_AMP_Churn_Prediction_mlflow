@@ -125,7 +125,7 @@ except Exception as err:
     
 #Let us now Register the model in model registry
 #model_name = 'churn_model-' + username + "-" + session_id # uncomment  only for testing and modifications and change corresponding names in 8B_deploy_registered_model
-model_name = "Customer Churn Model MLOps API Endpoint" #use this as the final name, comment this and uncomment previous line if you are testing
+model_name = os.getenv("REGISTERED_MODEL_NAME") or "Customer Churn Model Endpoint - MLOps API" #use this as the final name, comment this and uncomment previous line if you are testing
 model_path = '{0}/model'.format(best_run.artifact_uri)
 print(model_path)
 CreateRegisteredModelRequest = {
