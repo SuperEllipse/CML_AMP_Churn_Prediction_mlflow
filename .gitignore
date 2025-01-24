@@ -4,3 +4,7 @@ node_modules
 __pycache__
 .*
 !.gitignore
+models/telco_linear_demo/telco_linear_demo.pkl
+raw/telco-data/part-00000-bf3e4db3-7b9f-4775-aa4b-e09ce9531237-c000.csv
+.gitignore
+code/8_MLOps_with_API.ipynb
