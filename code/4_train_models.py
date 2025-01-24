@@ -94,6 +94,7 @@ from lime.lime_tabular import LimeTabularExplainer
 #MLFlow and additional model type for experimentation
 import mlflow
 from sklearn.svm import SVC
+from mlflow.models import infer_signature
 
 try:
   os.chdir("code")
@@ -157,35 +158,44 @@ ct = ColumnTransformer(
 )
 
 # Instantiate a new set of experiments (mlflow experiment object)
-mlflow.set_experiment("Churn Model Tuning")
-mlflow.autolog(log_input_examples=True)
+experiment_name = os.getenv("EXPERIMENT_NAME", "default_churn_experiment")
+experiment_id = mlflow.set_experiment(experiment_name)
+#mlflow.autolog(log_input_examples=True)
 
 # Define a search grid
 kernel = ["linear", "rbf"]
 max_iter = [1, 10, 100]
 
 # Iterate over the grid, re-training the model every time and recording train and test score as the metrics
+
 for k in kernel:
   for i in max_iter:
-    
+    with mlflow.start_run(experiment_id = experiment_id.experiment_id):
     # Start experiment run
-    mlflow.start_run()
-    mlflow.log_param("Kernel", k)
-    mlflow.log_param("Max_iter", i)
-    
-    # Define and fit model pipeline
-    svc = SVC(kernel = k, random_state = 0, max_iter=i, probability=True)
-    svc_pipe = Pipeline([("ct", ct), ("scaler", StandardScaler()), ("svc_fit", svc)])
-    svc_pipe.fit(X_train, y_train)
-    
-    # Capture train and test set scores
-    train_score2 = svc_pipe.score(X_train, y_train)
-    test_score2 = svc_pipe.score(X_test, y_test)
-    datadf[labels.name + " probability"] = svc_pipe.predict_proba(X)[:, 1]
-    
-    mlflow.log_metric("train_score", round(train_score2, 2))
-    mlflow.log_metric("test_score", round(test_score2, 2))
-    mlflow.end_run()
+    # mlflow.start_run()
+      mlflow.log_param("Kernel", k)
+      mlflow.log_param("Max_iter", i)
+
+      # Define and fit model pipeline
+      svc = SVC(kernel = k, random_state = 0, max_iter=i, probability=True)
+      svc_pipe = Pipeline([("ct", ct), ("scaler", StandardScaler()), ("svc_fit", svc)])
+      svc_pipe.fit(X_train, y_train)
+
+      # Capture train and test set scores
+      train_score2 = svc_pipe.score(X_train, y_train)
+      test_score2 = svc_pipe.score(X_test, y_test)
+      datadf[labels.name + " probability"] = svc_pipe.predict_proba(X)[:, 1]
+
+      mlflow.log_metric("train_score", round(train_score2, 2))
+      mlflow.log_metric("test_score", round(test_score2, 2))
+
+
+      # Infer model signature
+      input_example = X_train[:5]  # Use a small subset as an input example
+      signature = infer_signature(X_train, svc_pipe.predict_proba(X)[:, 1])
+
+      # Log the model
+      mlflow.sklearn.log_model(svc_pipe, "model", signature=signature, input_example=input_example)
 
 
 # Create LIME Explainer

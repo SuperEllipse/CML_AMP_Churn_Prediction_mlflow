@@ -96,13 +96,15 @@ from datetime import datetime
 import random
 import mlflow
 from src.api import ApiUtility
-import cdsw
+#import cdsw
 
 
 cml_client = cmlapi.default_client()
 
 # This name depends on 8A_registermodel.py. If you are testing model registry and deployments, use the name from the UI instead of the below
-model_name =  os.getenv("REGISTERED_MODEL_NAME") or "Customer Churn Model Endpoint - MLOps API"
+
+model_name =  os.getenv("REGISTERED_MODEL_NAME", "Churn Model Endpoint - MLOpsv1.0")
+
 print("Registered Model : {0} ".format(model_name))
 #List all the experiments in a given project of a certain name
 search_filter= { "model_name" : model_name}
@@ -224,7 +226,7 @@ def create_modelBuild_for_deployment(client, projectId, modelVersionId, modelCre
     # Create Model Build
     CreateModelBuildRequest = {
                                 "registered_model_version_id": modelVersionId, 
-                                "runtime_identifier": "docker.repository.cloudera.com/cloudera/cdsw/ml-runtime-workbench-python3.9-standard:2023.08.2-b8",
+                                "runtime_identifier": "docker.repository.cloudera.com/cloudera/cdsw/ml-runtime-workbench-python3.9-standard:2024.02.1-b4",
                                 "comment": "invoking model build",
                                 "model_id": modelCreationId
                               }

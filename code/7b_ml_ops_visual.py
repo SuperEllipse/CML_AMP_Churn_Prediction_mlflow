@@ -144,7 +144,7 @@ sns.lineplot(
 
 # Plot model accuracy drift over the simulated time period
 agg_metrics = metrics_df.dropna(subset=["metrics.accuracy"]).sort_values(
-    "startTimeStampMs"
+    "startTimeStampMs", ascending=False
 )
 sns.barplot(
     x=list(range(1, len(agg_metrics) + 1)),

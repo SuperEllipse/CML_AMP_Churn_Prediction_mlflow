@@ -90,7 +90,8 @@ session_id = secrets.token_hex(nbytes=4)
 
 try : 
     #List all the experiments in a given project with a project name
-    search_filter= { "name" : "Churn Model Tuning"}
+    experiment_name = os.getenv("EXPERIMENT_NAME", "default_churn_experiment")
+    search_filter= { "name" : experiment_name}
     project_id = os.environ["CDSW_PROJECT_ID"]
     search = json.dumps(search_filter)
     api_response = cml_client.list_experiments( project_id = project_id , search_filter = search)
@@ -124,8 +125,7 @@ except Exception as err:
 
     
 #Let us now Register the model in model registry
-#model_name = 'churn_model-' + username + "-" + session_id # uncomment  only for testing and modifications and change corresponding names in 8B_deploy_registered_model
-model_name = os.getenv("REGISTERED_MODEL_NAME") or "Customer Churn Model Endpoint - MLOps API" #use this as the final name, comment this and uncomment previous line if you are testing
+model_name =  os.getenv("REGISTERED_MODEL_NAME") or "Churn Model Endpoint - MLOpsv1.0"
 model_path = '{0}/model'.format(best_run.artifact_uri)
 print(model_path)
 CreateRegisteredModelRequest = {

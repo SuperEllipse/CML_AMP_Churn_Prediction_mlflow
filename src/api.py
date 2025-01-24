@@ -79,10 +79,13 @@ class ApiUtility:
         """
 
         project_id = os.environ["CDSW_PROJECT_ID"]
-
+        search_filter_dict = { "name": model_name }
+        search_filter = json.dumps(search_filter_dict)
+        
+        
         # gather model details
         models = (
-            self.client.list_models(project_id=project_id, async_req=True)
+            self.client.list_models(project_id=project_id, search_filter=search_filter, async_req=True)
             .get()
             .to_dict()
         )
